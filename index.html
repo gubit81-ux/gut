@@ -310,14 +310,14 @@
 
         runBtn.addEventListener('click', () => {
             previewPanel.classList.add('active');
-            closePreviewBtn.style.display = 'none'; // Lock the close button
+            closePreviewBtn.style.display = 'none';
             
             liveVideo.currentTime = 0;
             liveVideo.play().catch(err => console.log("Autoplay waiting"));
         });
 
         liveVideo.addEventListener('ended', () => {
-            closePreviewBtn.style.display = 'block'; // Unlocks the close button only when done!
+            closePreviewBtn.style.display = 'block';
         });
 
         closePreviewBtn.addEventListener('click', () => {
