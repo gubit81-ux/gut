@@ -1,408 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CodeStudio Pro</title>
-    
-    <!-- CodeMirror & Theme -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material-ocean.min.css">
-    
-    <style>
-        :root {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
-            --accent-green: #10b981;
-            --accent-blue: #38bdf8;
-            --accent-red: #f43f5e;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --header-height: 48px;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html, body {
-            height: 100%;
-            width: 100%;
-            background-color: var(--bg-primary);
-            color: var(--text-main);
-            overflow: hidden;
-            position: fixed;
-        }
-
-        /* Header & Navigation */
-        .editor-header {
-            background-color: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
-            flex-shrink: 0;
-        }
-
-        .tab-bar {
-            display: flex;
-            align-items: center;
-            height: var(--header-height);
-            padding-left: 12px;
-            gap: 8px;
-        }
-
-        .folder-icon {
-            color: var(--accent-blue);
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-        }
-
-        .tab {
-            background-color: var(--bg-primary);
-            padding: 8px 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            border-top-left-radius: 6px;
-            border-top-right-radius: 6px;
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-            border-bottom: none;
-        }
-
-        .tab-html-icon {
-            color: var(--accent-red);
-            font-weight: 700;
-            font-size: 11px;
-            background: rgba(244, 63, 94, 0.1);
-            padding: 2px 4px;
-            border-radius: 4px;
-        }
-
-        .close-tab {
-            color: var(--text-muted);
-            font-size: 12px;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .close-tab:hover {
-            color: var(--text-main);
-        }
-
-        /* Action Bar */
-        .action-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 16px;
-            background-color: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        .path-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .actions-right {
-            display: flex;
-            gap: 18px;
-            font-size: 16px;
-        }
-
-        .actions-right span {
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .actions-right span:active {
-            opacity: 0.7;
-        }
-
-        #runBtn {
-            color: var(--accent-green);
-        }
-
-        /* Workspace & Editor */
-        .workspace-container {
-            display: flex;
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .CodeMirror {
-            width: 100%;
-            height: 100% !important;
-            font-family: 'Fira Code', Consolas, Monaco, monospace;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        /* Preview Panel */
-        .preview-panel {
-            position: absolute;
-            top: 0;
-            left: 100%;
-            width: 100%;
-            height: 100%;
-            background: #000000;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: translateX(0);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .preview-panel.active {
-            transform: translateX(-100%);
-        }
-
-        .preview-header {
-            background-color: var(--bg-secondary);
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: var(--text-main);
-            font-size: 14px;
-            font-weight: 600;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .video-container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #000000;
-            padding: 12px;
-        }
-
-        .preview-video {
-            max-width: 100%;
-            max-height: 100%;
-            border-radius: 6px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Keyboard Toolbar */
-        .toolbar-container {
-            display: flex;
-            background-color: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-            flex-shrink: 0;
-        }
-
-        .side-indicator {
-            width: 24px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-size: 9px;
-            color: var(--accent-red);
-            font-weight: 700;
-            letter-spacing: 1px;
-            background-color: var(--bg-primary);
-            border-right: 1px solid var(--border-color);
-            user-select: none;
-        }
-
-        .keyboard-toolbar {
-            flex: 1;
-            padding: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .toolbar-row {
-            display: flex;
-            gap: 6px;
-            overflow-x: auto;
-            white-space: nowrap;
-            scrollbar-width: none;
-        }
-
-        .toolbar-row::-webkit-scrollbar {
-            display: none;
-        }
-
-        .btn {
-            background-color: var(--bg-tertiary);
-            color: var(--text-main);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-family: monospace;
-            min-width: 44px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background-color 0.15s, transform 0.1s;
-            flex-shrink: 0;
-        }
-
-        .btn:active {
-            transform: scale(0.96);
-            background-color: #475569;
-        }
-
-        .btn-wide {
-            min-width: 70px;
-        }
-
-        .btn-danger {
-            background-color: var(--accent-red);
-            border: none;
-            color: white;
-            font-weight: 600;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#181818">
+<title>new.html - VS Code Web Editor Pro</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material-ocean.min.css">
+<style>
+:root{--t:#181818;--e:#1f1f1f;--b:#2b2b2b;--tx:#ccc;--mut:#9d9d9d;--fnt:#6e6e6e;--ac:#0078d4;--ah:#0090ff;--ok:#4ec9b0;--r:4px;--ez:cubic-bezier(.4,0,.2,1);color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100dvh;width:100vw;overflow:hidden;overscroll-behavior:none}
+body{background:var(--e);color:var(--tx);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}:focus-visible{outline:1px solid var(--ac);outline-offset:-1px}
+.hd{flex:0 0 auto;background:var(--t);border-bottom:1px solid var(--b);contain:content}
+.tb{height:35px;display:flex;justify-content:space-between;align-items:center;padding:0 12px;font-size:12px;color:var(--mut);user-select:none}
+.tb nav{display:flex;gap:14px;white-space:nowrap;overflow:hidden}
+.tabs{height:35px;display:flex;background:var(--t);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{display:flex;align-items:center;gap:8px;padding:0 12px;font-size:13px;background:var(--e);color:var(--tx);border-right:1px solid var(--b);border-top:1px solid var(--ac);white-space:nowrap}
+.ic{width:14px;height:14px;fill:var(--mut);display:block}
+.ib{background:none;border:0;cursor:pointer;padding:4px;border-radius:4px;display:flex}
+.ib:hover{background:rgba(255,255,255,.08)}.ib:hover .ic{fill:#fff}
+.crumb{height:30px;display:flex;justify-content:space-between;align-items:center;padding:0 12px;background:var(--e);border-top:1px solid var(--b);font-size:12px;color:var(--mut)}
+.ar{display:flex;gap:2px}.ar .ic{width:16px;height:16px}
+#runBtn .ic{fill:var(--ok)}
+.ws{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;position:relative;isolation:isolate}
+.ew{flex:1 1 auto;min-height:0;position:relative;background:var(--e)}
+.CodeMirror{position:absolute!important;inset:0;height:100%!important;font-family:"Cascadia Code",Consolas,monospace!important;font-size:14px!important;line-height:1.6!important}
+.CodeMirror-gutters{background:var(--e)!important;border-right:1px solid var(--b)!important}
+.CodeMirror-linenumber{color:var(--fnt)!important}
+.CodeMirror-cursor{border-left:2px solid var(--ah)!important}
+.CodeMirror-selected{background:rgba(0,120,212,.28)!important}
+.pv{position:fixed;inset:0;width:100vw;height:100dvh;background:#000;z-index:99999;display:flex;visibility:hidden;pointer-events:none;transform:translate3d(100%,0,0);transition:transform .32s var(--ez),visibility 0s .32s;will-change:transform;contain:strict}
+.pv.on{transform:none;visibility:visible;pointer-events:auto;transition:transform .32s var(--ez)}
+.pv.off{transform:translate3d(100%,0,0)}
+.vc{flex:1;min-height:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000;overflow:hidden;position:relative}
+video.pvv{width:100%;height:100%;object-fit:cover;object-position:center;background:#000;outline:none}
+.bc{position:absolute;top:max(20px,env(safe-area-inset-top));right:max(20px,env(safe-area-inset-right));background:#d13438;border:1px solid rgba(255,255,255,.15);color:#fff;font-weight:600;padding:9px 20px;border-radius:var(--r);cursor:pointer;font-size:14px;z-index:100000;box-shadow:0 4px 16px rgba(0,0,0,.6);opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .25s var(--ez),transform .25s var(--ez)}
+.bc.show{opacity:1;transform:none;pointer-events:auto}.bc:hover{background:#e5484d}
+.ft{flex:0 0 auto;min-height:48px;display:flex;background:var(--t);border-top:1px solid var(--b);padding:6px 12px;align-items:center;z-index:10;contain:content}
+.si{display:none}
+.kt{display:flex;gap:6px;flex-wrap:wrap;width:100%;min-width:0}
+.tr{display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:none;min-width:0}
+.tr::-webkit-scrollbar{display:none}
+.lb{font-size:11px;color:var(--mut);text-transform:uppercase;font-weight:600;margin-right:4px;letter-spacing:.6px;flex:0 0 auto}
+.bn{background:#2d2d2d;color:var(--tx);border:1px solid #3e3e3e;padding:5px 11px;border-radius:var(--r);font-size:12px;font-family:Consolas,monospace;cursor:pointer;transition:background .15s,border-color .15s;white-space:nowrap;flex:0 0 auto}
+.bn:hover{background:#3d3d3d;border-color:var(--ac)}
+.bn:active{background:var(--ac);border-color:var(--ac);color:#fff}
+@media(max-width:900px){.tb nav span:nth-child(n+6){display:none}}
+@media(max-width:768px){.tb{padding:0 8px}.tb nav{gap:10px}.ft{padding:0;align-items:stretch}.si{display:flex;width:26px;flex:0 0 26px;flex-direction:column;justify-content:center;align-items:center;font-size:8px;color:var(--ah);font-weight:800;line-height:12px;background:var(--t);border-right:1px solid var(--b)}.kt{flex-direction:column;padding:6px}.tr{width:100%}.lb{display:none}.bn{min-width:44px;height:34px;display:inline-flex;align-items:center;justify-content:center;padding:0 12px}.CodeMirror{font-size:13.5px!important}}
+@media(prefers-reduced-motion:reduce){.pv,.bc,.bn{transition:none!important}}
+</style>
 </head>
 <body>
-
-    <header class="editor-header">
-        <div class="tab-bar">
-            <span class="folder-icon">📁</span>
-            <div class="tab">
-                <span class="tab-html-icon">HTML</span>
-                <span>new.html</span>
-                <span class="close-tab" title="Close Tab">✕</span>
-            </div>
-        </div>
-        
-        <div class="action-bar">
-            <div class="path-info">
-                <span>📁</span> <span>/</span> <span>new.html</span>
-            </div>
-            <div class="actions-right">
-                <span title="Search">🔍</span>
-                <span title="Save">💾</span>
-                <span id="runBtn" title="Run Project">▶</span>
-                <span title="More Options">•••</span>
-            </div>
-        </div>
-    </header>
-
-    <main class="workspace-container">
-        <textarea id="editorCode"></textarea>
-
-        <section class="preview-panel" id="previewPanel" aria-hidden="true">
-            <div class="preview-header">
-                <span id="previewTitle">Live Preview</span>
-                <button class="btn btn-danger" id="closePreviewBtn" style="display: none;">Close</button>
-            </div>
-            <div class="video-container">
-                <video class="preview-video" id="liveVideo" controls playsinline preload="metadata">
-                    <source src="Ya.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-        </section>
-    </main>
-
-    <nav class="toolbar-container" aria-label="Quick Code Toolbar">
-        <div class="side-indicator">
-            <span>H</span><span>T</span><span>M</span><span>L</span>
-        </div>
-        <div class="keyboard-toolbar">
-            <div class="toolbar-row">
-                <button class="btn btn-wide" onclick="insertSnippet('&lt;div&gt;&lt;/div&gt;')">&lt;div&gt;</button>
-                <button class="btn" onclick="insertSnippet('&lt;a href=&quot;&quot;&gt;&lt;/a&gt;')">&lt;a&gt;</button>
-                <button class="btn btn-wide" onclick="insertSnippet('&lt;img src=&quot;&quot; alt=&quot;&quot;&gt;')">&lt;img&gt;</button>
-                <button class="btn btn-wide" onclick="insertSnippet('class=&quot;&quot;')">class</button>
-                <button class="btn" onclick="insertSnippet('id=&quot;&quot;')">id</button>
-                <button class="btn btn-wide" onclick="insertSnippet('src=&quot;&quot;')">src</button>
-            </div>
-            <div class="toolbar-row">
-                <button class="btn" onclick="insertSnippet('\t')">⇥</button>
-                <button class="btn btn-wide" onclick="insertSnippet('=&quot;&quot;')">=" "</button>
-                <button class="btn" onclick="insertSnippet('&lt;')">&lt;</button>
-                <button class="btn" onclick="insertSnippet('&gt;')">&gt;</button>
-                <button class="btn" onclick="insertSnippet('&lt;/&gt;')">&lt;/&gt;</button>
-                <button class="btn" onclick="insertSnippet('-')">-</button>
-                <button class="btn btn-wide" onclick="insertSnippet('&lt;!--  --&gt;')">&lt;!-- --&gt;</button>
-            </div>
-        </div>
-    </nav>
-
-    <!-- CodeMirror Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
-
-    <script>
-        // Initialize CodeMirror Editor
-        const editorInstance = CodeMirror.fromTextArea(document.getElementById('editorCode'), {
-            mode: "htmlmixed",
-            theme: "material-ocean",
-            lineNumbers: true,
-            indentUnit: 4,
-            smartIndent: true,
-            lineWrapping: true
-        });
-
-        function insertSnippet(val) {
-            const doc = editorInstance.getDoc();
-            const cursor = doc.getCursor();
-            doc.replaceRange(val, cursor);
-            editorInstance.focus();
-        }
-
-        // DOM Elements
-        const runBtn = document.getElementById('runBtn');
-        const previewPanel = document.getElementById('previewPanel');
-        const closePreviewBtn = document.getElementById('closePreviewBtn');
-        const liveVideo = document.getElementById('liveVideo');
-
-        // Event Listeners
-        runBtn.addEventListener('click', () => {
-            previewPanel.classList.add('active');
-            previewPanel.setAttribute('aria-hidden', 'false');
-            closePreviewBtn.style.display = 'none';
-            
-            liveVideo.currentTime = 0;
-            liveVideo.play().catch(err => console.log("Autoplay blocked:", err));
-        });
-
-        liveVideo.addEventListener('ended', () => {
-            closePreviewBtn.style.display = 'block';
-        });
-
-        closePreviewBtn.addEventListener('click', () => {
-            previewPanel.classList.remove('active');
-            previewPanel.setAttribute('aria-hidden', 'true');
-        });
-
-        // Initial Boilerplate Content
-        editorInstance.setValue(`<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>New Project</title>
-</head>
-<body>
-    <h1>Hello World!</h1>
-</body>
-</html>`);
-    </script>
+<header class="hd"><div class="tb"><nav><span>File</span><span>Edit</span><span>Selection</span><span>View</span><span>Go</span><span>Run</span><span>Terminal</span><span>Help</span></nav><div style="display:flex;gap:10px"><svg class="ic" viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg><svg class="ic" viewBox="0 0 24 24"><path d="M18 4H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H6V6h12v12z"/></svg><svg class="ic" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></div></div><div class="tabs"><div class="tab"><svg class="ic" viewBox="0 0 24 24" style="fill:#e44d26"><path d="M12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61z"/></svg><span>new.html</span><svg class="ic" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></div></div><div class="crumb"><div style="display:flex;gap:6px;align-items:center"><svg class="ic" style="width:12px;height:12px" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg><span>&gt; new.html</span></div><div class="ar"><button class="ib" title="Search"><svg class="ic" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg></button><button class="ib" title="Save"><svg class="ic" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10z"/></svg></button><button class="ib" id="runBtn" title="Run"><svg class="ic" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button><button class="ib" title="More"><svg class="ic" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></button></div></div></header><main class="ws"><div class="ew"><textarea id="ed"></textarea></div><section class="pv" id="pv" aria-hidden="true"><div class="vc"><button class="bc" id="bc">Close</button><video class="pvv" id="lv" playsinline preload="auto" disablepictureinpicture controlslist="nodownload"><source src="Ya.mp4" type="video/mp4"></video></div></section></main><footer class="ft"><div class="si"><span>H</span><span>M</span><span>T</span><span>L</span></div><div class="kt"><div class="tr" id="snip"><span class="lb">Snippets:</span></div></div></footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+<script>
+(function(){var ed=CodeMirror.fromTextArea(document.getElementById('ed'),{mode:'htmlmixed',theme:'material-ocean',lineNumbers:true,indentUnit:4,lineWrapping:true,viewportMargin:Infinity});
+var SN=[['<div>','<div></div>'],['<a>','<a></a>'],['<img>','<img src="">'],['class','class=""'],['id','id=""'],['src','src=""'],['ind','\t'],['=" "','=" "'],['<','<'],['>','>'],['</>','</>'],['<!--','<!--  -->']];
+var bar=document.getElementById('snip');
+SN.forEach(function(s){var b=document.createElement('button');b.className='bn';b.textContent=s[0];b.dataset.v=s[1];bar.appendChild(b)});
+bar.addEventListener('click',function(e){var b=e.target.closest('.bn');if(!b)return;ed.getDoc().replaceRange(b.dataset.v,ed.getDoc().getCursor());ed.focus()});
+var run=document.getElementById('runBtn'),pv=document.getElementById('pv'),bc=document.getElementById('bc'),lv=document.getElementById('lv'),locked=false;
+function lock(on){locked=on;document.documentElement.style.overflow=on?'hidden':''}
+function openPV(){pv.classList.remove('off');pv.classList.add('on');pv.setAttribute('aria-hidden','false');bc.classList.remove('show');lock(true);try{lv.currentTime=0}catch(e){}var p=lv.play();if(p&&p.catch)p.catch(function(){bc.classList.add('show')})}
+function closePV(){if(locked)return;pv.classList.add('off');pv.setAttribute('aria-hidden','true');try{lv.pause()}catch(e){}setTimeout(function(){pv.classList.remove('on','off')},340);lock(false);ed.focus()}
+run.addEventListener('click',openPV);
+lv.addEventListener('ended',function(){lock(false);bc.classList.add('show');bc.focus()});
+lv.addEventListener('error',function(){lock(false);bc.classList.add('show')});
+bc.addEventListener('click',closePV);
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&pv.classList.contains('on')){e.preventDefault()}});
+document.addEventListener('contextmenu',function(e){if(pv.classList.contains('on'))e.preventDefault()});
+var rz;window.addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){ed.refresh()},120)});
+ed.setValue('<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<title>New Project</title>\n</head>\n<body>\n<h1>Hello World!</h1>\n</body>\n</html>');
+setTimeout(function(){ed.refresh()},60);
+})();</script>
 </body>
 </html>
+
